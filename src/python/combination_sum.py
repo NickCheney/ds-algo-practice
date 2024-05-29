@@ -1,8 +1,16 @@
-from time_it import time_it
+"""
+39. Combination Sum
+https://leetcode.com/problems/combination-sum/description/
+"""
 from typing import List
-from collections import deque
+from pathlib import Path
+
 from anytree import Node
-from images.plot_tree import TreePlotter
+
+from utils.plot_tree import TreePlotter
+from utils.time_it import time_it
+
+REPO_ROOT_DIR = Path(__file__).parent.parent
 
 """
 Time complexity:
@@ -11,61 +19,77 @@ Thinking from a graph perspective, we build up potential solutions using every c
 candidates until we have a solution or exceed the target. At each level, there are N possible
 candidates, and there are at max T levels (if min(candidates)=1). So the time complexity is
 O(N^T) or O(N^T/min(candidate)).
+
+See here for an example with a target of 7 and candidates [2,3,6,7]: 
+../src/assets/images/combination_sum.png
+
+Notice the duplicate solutions [2,2,3] and [3,2,2]. To eliminate redundancy, we can bound the 
+candidates at each level of backtracking to only include values >= the last candidate added to the
+set.
+
+E.g., if the current working combination is [3], the only possibilities to explore would be [3,3,...],
+[3,6,...] etc. Checking [3,2,...] would not be necessary as we had checked [2,3,...] already.
 """
 class Solution:
-    """
-    No helper function, recursive calls to get sub solutions to extend.
-    LC runtime: 52 ms
-    """
-    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
-        res = []
-        for i in range(len(candidates)-1,-1,-1):
-            if candidates[i] > target:
-                continue
-            elif candidates[i] == target:
-                res.append([candidates[i]])
-            else:
-                sub_solutions = self.combinationSum(candidates[:i+1], target - candidates[i])
-                for sol in sub_solutions:
-                    res.append(sol+[candidates[i]])
-        
+    @time_it
+    def combinationSumV1(self, candidates: List[int], target: int) -> List[List[int]]:
+        """
+        No nonlocal variables or extra args, recursive calls to get sub solutions to extend.
+        LC runtime: 52 ms
+        """
+        def combinationSum(candidates: List[int], target: int) -> List[List[int]]:
+            res = []
+            for i in range(len(candidates)):
+                if candidates[i] > target:
+                    continue
+                elif candidates[i] == target:
+                    res.append([candidates[i]])
+                else:
+                    sub_solutions = combinationSum(candidates[i:], target - candidates[i])
+                    for sol in sub_solutions:
+                        res.append(sol+[candidates[i]])
+            return res
+                
+        res = combinationSum(candidates, target)
         return res
 
+    @time_it
     def combinationSumV2(self, candidates: List[int], target: int) -> List[List[int]]:
         """
         Use nonlocal variables for partial solution stack and found solutions.
-        Runtime: 40ms.
+        LC Runtime: 40ms.
         """
         currentCombo = []
         res = []
 
         def combinationSumHelper(candidates: List[int], target: int):
-            for i in range(len(candidates)-1,-1,-1):
+            for i in range(len(candidates)):
                 if candidates[i] > target:
                     continue
                 elif candidates[i] == target:
                     res.append(currentCombo + [candidates[i]])
                 else:
                     currentCombo.append(candidates[i])
-                    combinationSumHelper(candidates[:i+1], target - candidates[i])
+                    combinationSumHelper(candidates[i:], target - candidates[i])
                     currentCombo.pop()
 
         combinationSumHelper(candidates, target)
         return res
     
+    @time_it
     def combinationSumV3(self, candidates: List[int], target: int) -> List[List[int]]:
         """
         Keep partial and complete solutions as helper function args.
-        Runtime: 44ms.
+        LC Runtime: 44ms.
         """
         def combinationSumHelper(candidates: List[int], target: int, res: List[List[int]] = [], currentCombo: List[int] = []):
-            for i in range(len(candidates)-1,-1,-1):
+            for i in range(len(candidates)):
                 if candidates[i] > target:
                     continue
                 elif candidates[i] == target:
                     res.append(currentCombo + [candidates[i]])
                 else:
-                    res = combinationSumHelper(candidates[:i+1], target - candidates[i], res, currentCombo+[candidates[i]])
+                    res = combinationSumHelper(candidates[i:], target - candidates[i], res, currentCombo+[candidates[i]])
             return res
 
         res = combinationSumHelper(candidates, target)
@@ -73,8 +97,7 @@ class Solution:
     
     def combinationGraph(self, candidates: List[int], target: int) -> List[List[int]]:
         """
-        Use nonlocal variables for partial solution stack and found solutions.
-        Runtime: 40ms.
+        Generate a tree representing the backtracking search.
         """
         currentCombo = []
         root = Node("[]")
@@ -84,7 +107,7 @@ class Solution:
             nonlocal curr
             for i in range(len(candidates)):
                 if candidates[i] > target:
-                    Node(f"{currentCombo+[candidates[i]]} X", parent=curr)
+                    Node(f"{currentCombo+[candidates[i]]} x", parent=curr)
                 elif candidates[i] == target:
                     Node(f"{currentCombo+[candidates[i]]} S", parent=curr)
                 else:
@@ -92,7 +115,7 @@ class Solution:
                     new_node = Node(str(currentCombo), parent=curr)
                     curr_copy = curr
                     curr = new_node
-                    combinationGraphHelper(candidates[:i+1], target - candidates[i])
+                    combinationGraphHelper(candidates, target - candidates[i])
                     curr = curr_copy
                     currentCombo.pop()
 
@@ -103,19 +126,33 @@ class Solution:
 
 if __name__ == '__main__':
     s = Solution()
-    print(s.combinationSum([2,3,6,7],7))
-    print(s.combinationSum([2,3,5],8))
-    print(s.combinationSum([2],1))
 
-    print(s.combinationSumV2([2,3,6,7],7))
-    print(s.combinationSumV2([2,3,5],8))
-    print(s.combinationSumV2([2],1))
+    print("Case 1")
+    print("------")
+    print("candidates = [2,3,6,7]")
+    print("target = 7")
+    print("Result:", s.combinationSumV1([2,3,6,7],7))
+    print("Result:", s.combinationSumV2([2,3,6,7],7))
+    print("Result:", s.combinationSumV3([2,3,6,7],7))
 
-    print(s.combinationSumV3([2,3,6,7],7))
-    print(s.combinationSumV3([2,3,5],8))
-    print(s.combinationSumV3([2],1))
+    print("\nCase 2")
+    print("------")
+    print("candidates = [2,3,5]")
+    print("target = 8")
+    print("Result:", s.combinationSumV1([2,3,5],8))
+    print("Result:", s.combinationSumV2([2,3,5],8))
+    print("Result:", s.combinationSumV3([2,3,5],8))
 
-    tp = TreePlotter(s.combinationGraph([2,3,6,7],7))
-    tp.print_tree()
-    tp.plot_tree('images/combination_sum.png')
+    print("\nCase 3")
+    print("------")
+    print("candidates = [2]")
+    print("target = 1")
+    print("Result:", s.combinationSumV1([2],1))
+    print("Result:", s.combinationSumV2([2],1))
+    print("Result:", s.combinationSumV3([2],1))
+
+    # Uncomment to plot a tree of the back
+    # tp = TreePlotter(s.combinationGraph([2,3,6,7],7))
+    # tp.print_tree()
+    # tp.plot_tree(REPO_ROOT_DIR / 'assets/images/combination_sum.png')
     
