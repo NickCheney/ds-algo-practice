@@ -1,2 +1,2 @@
 # ds-algo-practice
-Data structures and algorithms practice problem solutions
+Solutions for some data structures and algorithms problems I've solved.
