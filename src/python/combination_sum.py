@@ -127,29 +127,30 @@ class Solution:
 if __name__ == '__main__':
     s = Solution()
 
-    print("Case 1")
-    print("------")
-    print("candidates = [2,3,6,7]")
-    print("target = 7")
-    print("Result:", s.combinationSumV1([2,3,6,7],7))
-    print("Result:", s.combinationSumV2([2,3,6,7],7))
-    print("Result:", s.combinationSumV3([2,3,6,7],7))
+    cases = [
+        (1, [2,3,6,7], 7),
+        (2, [2,3,5], 8),
+        (3, [2], 1)
+    ]
 
-    print("\nCase 2")
-    print("------")
-    print("candidates = [2,3,5]")
-    print("target = 8")
-    print("Result:", s.combinationSumV1([2,3,5],8))
-    print("Result:", s.combinationSumV2([2,3,5],8))
-    print("Result:", s.combinationSumV3([2,3,5],8))
+    for case, candidates, target in cases:
+        print("\nCase",case)
+        print("------")
+        print(f"candidates = {candidates}")
+        print(f"target = {target}")
+        print("Result:", s.combinationSumV1(candidates,target))
+        print("Result:", s.combinationSumV2(candidates,target))
+        print("Result:", s.combinationSumV3(candidates,target))
 
-    print("\nCase 3")
-    print("------")
-    print("candidates = [2]")
-    print("target = 1")
-    print("Result:", s.combinationSumV1([2],1))
-    print("Result:", s.combinationSumV2([2],1))
-    print("Result:", s.combinationSumV3([2],1))
+    print("\nCase 4")
+    print("-------")
+    candidates = list(range(1,31))
+    target = 45
+    print(f"candidates = {candidates}")
+    print(f"target = {target}")
+    s.combinationSumV1(candidates,target)
+    s.combinationSumV2(candidates,target)
+    s.combinationSumV3(candidates,target)
 
     # Uncomment to plot a tree of the back
     # tp = TreePlotter(s.combinationGraph([2,3,6,7],7))
