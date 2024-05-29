@@ -21,7 +21,7 @@ candidates, and there are at max T levels (if min(candidates)=1). So the time co
 O(N^T) or O(N^T/min(candidate)).
 
 See here for an example with a target of 7 and candidates [2,3,6,7]: 
-../src/assets/images/combination_sum.png
+https://github.com/NickCheney/ds-algo-practice/blob/main/src/assets/images/combination_sum.png
 
 Notice the duplicate solutions [2,2,3] and [3,2,2]. To eliminate redundancy, we can bound the 
 candidates at each level of backtracking to only include values >= the last candidate added to the
